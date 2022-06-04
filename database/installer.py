@@ -1,19 +1,17 @@
-from sys import stderr
+from sqlalchemy.ext.declarative import declarative_base
 from parser import parse_persons, parse_customers, parse_products, find_person, parse_transactions, find_customer, find_product
-from sqlalchemy.exc import SQLAlchemyError, ProgrammingError, InterfaceError
-
-from database import StoreDatabase, Persisted, Product, Address, Person, Customer, Transaction, ProductTransaction
-
+from datamodels import Person, Customer, Product, Address, ProductTransaction, Transaction
+from database import connect_to_database, Persisted
 
 def already_has_data(session):
     return any(session.query(table).first() is not None for table in Persisted.metadata.sorted_tables)
 
 
 def add_parsed_data(session):
-    lst_persons = parse_persons("Persons.dat")
-    lst_customers = parse_customers("Customers.dat")
-    lst_transactions = parse_transactions("Transactions.dat")
-    lst_products = parse_products("Products.dat")
+    lst_persons = parse_persons("../data/Persons.dat")
+    lst_customers = parse_customers("../data/Customers.dat")
+    lst_transactions = parse_transactions("../data/Transactions.dat")
+    lst_products = parse_products("../data/Products.dat")
 
     for product in lst_products:
         product.data_model = Product(name=product.name, price=product.price)
@@ -62,39 +60,25 @@ def add_parsed_data(session):
             session.add(ProductTransaction(product_id=product_id, transaction_id=transaction.data_model.id))
 
 def main():
-    try:
-        # Prompts for getting database connection information
-        print('Please enter an authority:')
-        authority = input()
-        print('Please enter a port:')
-        port = int(input())
-        print('Please enter a database name:')
-        database_name = input()
-        print('Please enter a username:')
-        username = input()
-        print('Please enter a password:')
-        password = input()
-        url = StoreDatabase.construct_mysql_url(authority, port, database_name, username, password)
-        store_database = StoreDatabase(url)
-        store_database.ensure_tables_exist()
-        print('Tables successfully created.')
-        session = store_database.create_session()
-        if already_has_data(session):
-            print('Not creating records because some already exist.')
-        else:
-            add_parsed_data(session)
-            session.commit()
-            print('Records successfully parsed and uploaded to database.')
-    except InterfaceError:
-        print(f'Cannot connect to database! Did you type the authority/port correctly?\nAuthority: {authority}, Port: {port}', file=stderr)
-        exit(1)
-    except ProgrammingError:
-        print(f'Unknown database name! Make sure to create a database named "{database_name}".\nIf you typed the database name correctly then double check your credentials!', file=stderr)
-        exit(1)
-    except SQLAlchemyError as exception:
-        print('Database setup failed!', file=stderr)
-        print(f'Cause: {exception}', file=stderr)
-        exit(1)
+    # Prompts for getting database connection information
+    print('Please enter an authority:')
+    authority = input()
+    print('Please enter a port:')
+    port = int(input())
+    print('Please enter a database name:')
+    database_name = input()
+    print('Please enter a username:')
+    username = input()
+    print('Please enter a password:')
+    password = input()
+    session = connect_to_database(authority, port, database_name, username, password)
+    print('Tables successfully created.')
+    if already_has_data(session):
+        print('Not creating records because some already exist.')
+    else:
+        add_parsed_data(session)
+        session.commit()
+        print('Records successfully parsed and uploaded to database.')
 
 if __name__ == '__main__':
     main()

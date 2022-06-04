@@ -13,12 +13,6 @@ class Person:
       emails += email + ", "
     emails = emails[0:len(emails) - 3]
     return "Person " + self.id + " " + self.first_name + " " + self.last_name + " " + str(self.address) + " " + emails
-  
-  def get_data_model(self):
-    return self.data_model
-
-  def set_data_model(self, data_model):
-    self.data_model = data_model
 
   def compare(self, person):
     if self.last_name > person.last_name:
@@ -38,12 +32,6 @@ class Address:
     self.country = country
     self.data_model = None
 
-  def get_data_model(self):
-    return self.data_model
-
-  def set_data_model(self, data_model):
-    self.data_model = data_model
-
   def __str__(self):
     return "Address " + self.address + " " + self.city + " " + self.state + " " + self.zip + " " + self.country
 
@@ -56,12 +44,6 @@ class Customer:
     self.person_id = person_id
     self.address = address
     self.data_model = None
-  
-  def get_data_model(self):
-    return self.data_model
-
-  def set_data_model(self, data_model):
-    self.data_model = data_model
 
   def __str__(self):
     return "Customer " + self.id + " " + self.type + " " + self.company + " " + self.person_id + " " + str(self.address)
@@ -81,12 +63,6 @@ class Product:
     self.name = name
     self.price = price
     self.data_model = None
-
-  def get_data_model(self):
-    return self.data_model
-
-  def set_data_model(self, data_model):
-    self.data_model = data_model
   
   def __str__(self):
     return "Product " + self.id + " " + self.name + " " + self.price
@@ -106,9 +82,3 @@ class Transaction:
     self.lst_products = lst_products
     self.date = date
     self.data_model = None
-
-  def get_data_model(self):
-    return self.data_model
-
-  def set_data_model(self, data_model):
-    self.data_model = data_model
