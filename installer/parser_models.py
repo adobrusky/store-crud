@@ -1,11 +1,17 @@
+from types import CoroutineType
+
+
 class Person:
-  def __init__(self, id, first_name, last_name, address, email):
+  def __init__(self, id, first_name, last_name, address, city, state, zip, country, email):
     self.id = id
     self.first_name = first_name
     self.last_name = last_name
     self.address = address
+    self.city = city
+    self.state = state
+    self.zip = zip
+    self.country = country
     self.email = email
-    self.data_model = None
 
   def __str__(self):
     emails = "Email: "
@@ -23,30 +29,20 @@ class Person:
       return 0
 
 
-class Address:
-  def __init__(self, address, city, state, zip, country):
+class Customer:
+  def __init__(self, id, type, company, person, address, city, state, zip, country):
+    self.id = id
+    self.type = type
+    self.company = company
+    self.person = person
     self.address = address
     self.city = city
     self.state = state
     self.zip = zip
     self.country = country
-    self.data_model = None
 
   def __str__(self):
-    return "Address " + self.address + " " + self.city + " " + self.state + " " + self.zip + " " + self.country
-
-
-class Customer:
-  def __init__(self, id, type, company, person_id, address):
-    self.id = id
-    self.type = type
-    self.company = company
-    self.person_id = person_id
-    self.address = address
-    self.data_model = None
-
-  def __str__(self):
-    return "Customer " + self.id + " " + self.type + " " + self.company + " " + self.person_id + " " + str(self.address)
+    return "Customer " + self.id + " " + self.type + " " + self.company + " " + self.person.id + " " + str(self.address)
 
   def compare(self, customer):
     if self.company > customer.company:
@@ -62,7 +58,6 @@ class Product:
     self.id = id
     self.name = name
     self.price = price
-    self.data_model = None
   
   def __str__(self):
     return "Product " + self.id + " " + self.name + " " + self.price
@@ -75,10 +70,10 @@ class Product:
     else:
       return 0
 
+
 class Transaction:
-  def __init__(self, id, customer_id, lst_products, date):
+  def __init__(self, id, customer, lst_products, date):
     self.id = id
-    self.customer_id = customer_id
+    self.customer = customer
     self.lst_products = lst_products
     self.date = date
-    self.data_model = None
