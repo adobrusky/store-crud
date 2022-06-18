@@ -119,6 +119,7 @@ def main():
             if price != "":
               existing.price = price
             data_helper.products_save(existing)
+            print("Update successful.")
           else:
             print("Update failed. " + existing.message)
         # Update persons
@@ -151,6 +152,7 @@ def main():
             if email != "":
               existing.email = email
             data_helper.persons_save(existing)
+            print("Update successful.")
           else:
             print("Update failed. " + existing.message)
         # Update customers
@@ -183,6 +185,7 @@ def main():
             if zip != "":
               existing.zip = zip
             data_helper.customers_save(existing)
+            print("Update successful.")
           else:
             print("Update failed. " + existing.message)
         # Update transactions
@@ -207,6 +210,7 @@ def main():
                 else:
                   print("Update failed. " + product.message)
                   break
+            print("Update successful.")
           else:
             print("Update failed. " + existing.message)
         else:
@@ -217,16 +221,32 @@ def main():
         entry = input("Would you like to delete a person, product, customer, or transaction?\n(Type exit to leave)\n").lower()
         if entry == "product":
           id = input("Enter the id of the product you would like to delete\n")
-          data_helper.products_delete(id)
+          product = data_helper.products_delete(id)
+          if product.success:
+            print("Deletion successful.")
+          else:
+            print("Deletion failed. " + product.message)
         elif entry == "customer":
           id = input("Enter the id of the customer you would like to delete\n")
-          data_helper.customers_delete(id)
+          customer = data_helper.customers_delete(id)
+          if customer.success:
+            print("Deletion successful.")
+          else:
+            print("Deletion failed. " + customer.message)
         elif entry == "person":
           id = input("Enter the id of the person you would like to delete\n")
-          data_helper.persons_delete(id)
+          person = data_helper.persons_delete(id)
+          if person.success:
+            print("Deletion successful.")
+          else:
+            print("Deletion failed. " + person.message)
         elif entry == "transaction":
           id = input("Enter the id of the transaction you would like to delete\n")
-          data_helper.transactions_delete(id)
+          transaction = data_helper.transactions_delete(id)
+          if transaction.success:
+            print("Deletion successful.")
+          else:
+            print("Deletion failed. " + transaction.message)
         else:
           print("Invalid input.\n")
         print("")

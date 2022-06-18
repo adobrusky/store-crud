@@ -102,20 +102,52 @@ class DataHelper:
     return lst_products
 
   def products_delete(self, product_id):
-    self.session.query(Product).filter(Product.id == product_id).delete()
-    self.session.commit()
+    product = self.products_getone(product_id)
+    if product.success:
+      self.session.query(Product).filter(Product.id == product_id).delete()
+      self.session.commit()
+    else:
+      return Product(success=False, message=product.message)
+    if not self.products_getone(product_id).success:
+      return Product(success=True)
+    else:
+      return Product(success=False, message="An unknown error occurred.")
 
   def customers_delete(self, customer_id):
-    self.session.query(Customer).filter(Customer.id == customer_id).delete()
-    self.session.commit()
+    customer = self.customers_getone(customer_id)
+    if customer.success:
+      self.session.query(Customer).filter(Customer.id == customer_id).delete()
+      self.session.commit()
+    else:
+      return Customer(success=False, message=customer.message)
+    if not self.customers_getone(customer_id).success:
+      return Customer(success=True)
+    else:
+      return Customer(success=False, message="An unknown error occurred.")
 
   def persons_delete(self, person_id):
-    self.session.query(Person).filter(Person.id == person_id).delete()
-    self.session.commit()
+    person = self.persons_getone(person_id)
+    if person.success:
+      self.session.query(Person).filter(Person.id == person_id).delete()
+      self.session.commit()
+    else:
+      return Person(success=False, message=person.message)
+    if not self.persons_getone(person_id).success:
+      return Person(success=True)
+    else:
+      return Person(success=False, message="An unknown error occurred.")
 
   def transactions_delete(self, transaction_id):
-    self.session.query(Transaction).filter(Transaction.id == transaction_id).delete()
-    self.session.commit()
+    transaction = self.transactions_getone(transaction_id)
+    if transaction.success:
+      self.session.query(Transaction).filter(Transaction.id == transaction_id).delete()
+      self.session.commit()
+    else:
+      return Transaction(success=False, message=transaction.message)
+    if not self.transactions_getone(transaction_id).success:
+      return Transaction(success=True)
+    else:
+      return Transaction(success=False, message="An unknown error occurred.")
 
   def close(self):
     self.session.close()
