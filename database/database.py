@@ -4,27 +4,27 @@ from sqlalchemy.orm import sessionmaker
 from sys import stderr
 from sqlalchemy.exc import SQLAlchemyError, ProgrammingError, InterfaceError
 
-Persisted = declarative_base()  # pylint: disable=invalid-name
+Persisted = declarative_base()
 
 def connect_to_database(authority, port, database_name, username, password):
-        try:
-            url = StoreDatabase.construct_mysql_url(authority, port, database_name,
-                                                            username, password)
-            store_database = StoreDatabase(url)
-            store_database.ensure_tables_exist()
-            return store_database.create_session()
-        except InterfaceError:
-            print(f'Cannot connect to database! Did you type the authority/port correctly?\nAuthority: {authority}, Port: {port}', file=stderr)
-            exit(1)
-        except ProgrammingError:
-            print(f'Unknown database name! Make sure to create a database named "{database_name}".\nIf you typed the database name correctly then double check your credentials!', file=stderr)
-            exit(1)
-        except ValueError as exception:
-            print(f'Please enter a valid port number!', file=stderr)
-        except SQLAlchemyError as exception:
-            print('Database setup failed!', file=stderr)
-            print(f'Cause: {exception}', file=stderr)
-            exit(1)
+    try:
+        url = StoreDatabase.construct_mysql_url(authority, port, database_name,
+                                                        username, password)
+        store_database = StoreDatabase(url)
+        store_database.ensure_tables_exist()
+        return store_database.create_session()
+    except InterfaceError:
+        print(f'Cannot connect to database! Did you type the authority/port correctly?\nAuthority: {authority}, Port: {port}', file=stderr)
+        exit(1)
+    except ProgrammingError:
+        print(f'Unknown database name! Make sure to create a database named "{database_name}".\nIf you typed the database name correctly then double check your credentials!', file=stderr)
+        exit(1)
+    except ValueError as exception:
+        print(f'Please enter a valid port number!', file=stderr)
+    except SQLAlchemyError as exception:
+        print('Database setup failed!', file=stderr)
+        print(f'Cause: {exception}', file=stderr)
+        exit(1)
 
 class StoreDatabase(object):
     @staticmethod

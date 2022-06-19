@@ -4,9 +4,13 @@ from tabulate import tabulate
 
 def main():
   done = False
-  data_helper = DataHelper()
+  print('Please enter a username:')
+  username = input()
+  print('Please enter a password:')
+  password = input()
+  data_helper = DataHelper(username, password)
   while not done:
-    entry = input("Would you like to create, read, update, or delete?\n(Type exit to leave)\n").lower()
+    entry = input("Would you like to create, read, update, or delete?\n(Type exit to leave)\n").lower().strip()
     if entry != "create" and entry != "read" and entry != "update" and entry != "delete" and entry != "exit":
       print("Invalid input.\n")
       continue
@@ -18,7 +22,7 @@ def main():
       print("")
       # If user wants to read
       if entry == "read":
-        entry = input("Would you like to read persons, products, customers, or transactions?\n(Type exit to leave)\n").lower()
+        entry = input("Would you like to read persons, products, customers, or transactions?\n(Type exit to leave)\n").lower().strip()
         # Read persons
         if entry == "persons":
           lst_persons = data_helper.get_persons()
@@ -63,57 +67,78 @@ def main():
         print("")
       # If user wants to create
       elif entry == "create":
-        entry = input("Would you like to create a person, product, customer, or transaction?\n(Type exit to leave)\n").lower()
+        entry = input("Would you like to create a person, product, customer, or transaction?\n(Type exit to leave)\n").lower().strip()
         # Create products
         if entry == "product":
-          name = input("Enter a product name\n")
-          price = input("Enter a product price\n")
-          data_helper.products_save(Product(name=name, price=price))
+          name = input("Enter a product name\n").strip()
+          price = input("Enter a product price\n").strip()
+          product = data_helper.products_save(Product(name=name, price=price))
+          if product.success:
+            print("Addition successful.")
+          else:
+            print("Addition failed. " + product.message)
         # Create customers
         elif entry == "customer":
-          type = input("Enter the customer's type (B or P)\n")
-          company = input("Enter the customer's company name\n")
-          person_id = input("Enter the customer's person ID\n")
-          address = input("Enter the customer's street address\n")
-          city = input("Enter the customer's city\n")
-          state = input("Enter customer's state\n")
-          country = input("Enter the customer's country\n")
-          zip = input("Enter the customer's zip code\n")
-          data_helper.customers_save(Customer(type=type, company=company, person_id=person_id, address=address, city=city, state=state, zip=zip, country=country))
+          type = input("Enter the customer's type (B or P)\n").strip()
+          company = input("Enter the customer's company name\n").strip()
+          person_id = input("Enter the customer's person ID\n").strip()
+          address = input("Enter the customer's street address\n").strip()
+          city = input("Enter the customer's city\n").strip()
+          state = input("Enter customer's state\n").strip()
+          country = input("Enter the customer's country\n").strip()
+          zip = input("Enter the customer's zip code\n").strip()
+          customer = data_helper.customers_save(Customer(type=type, company=company, person_id=person_id, address=address, city=city, state=state, zip=zip, country=country))
+          if customer.success:
+            print("Addition successful.")
+          else:
+            print("Addition failed. " + customer.message)
         # Create persons
         elif entry == "person":
-          first_name = input("Enter the person's first name \n")
-          last_name = input("Enter the person's last name\n")
-          address = input("Enter the person's street address\n")
-          city = input("Enter the person's city\n")
-          state = input("Enter person's state\n")
-          country = input("Enter the person's country\n")
-          zip = input("Enter the person's zip code\n")
-          email = input("Enter the person's email\n")
-          data_helper.persons_save(Person(first_name=first_name, last_name=last_name, address=address, city=city, state=state, zip=zip, country=country, email=email))
+          first_name = input("Enter the person's first name \n").strip()
+          last_name = input("Enter the person's last name\n").strip()
+          address = input("Enter the person's street address\n").strip()
+          city = input("Enter the person's city\n").strip()
+          state = input("Enter person's state\n").strip()
+          country = input("Enter the person's country\n").strip()
+          zip = input("Enter the person's zip code\n").strip()
+          email = input("Enter the person's email\n").strip()
+          person = data_helper.persons_save(Person(first_name=first_name, last_name=last_name, address=address, city=city, state=state, zip=zip, country=country, email=email))
+          if person.success:
+            print("Addition successful.")
+          else:
+            print("Addition failed. " + person.message)
         # Create transactions
         elif entry == "transaction":
-          customer_id = input("Enter the transactions's customer ID\n")
-          date = input("Enter the transaction's date (yyyy-mm-dd)\n")
-          product_ids = input("Enter the transaction's product ID(s) as a pipe separated list\n")
+          customer_id = input("Enter the transactions's customer ID\n").strip()
+          date = input("Enter the transaction's date (yyyy-mm-dd)\n").strip()
+          product_ids = input("Enter the transaction's product ID(s) as a comma separated list\n").strip()
           transaction = data_helper.transactions_save(Transaction(customer_id=customer_id, date=date))
-          for product_id in product_ids:
-            product = data_helper.products_getone(product_id)
-            if product is not None:
+          if not transaction.success:
+            print("Addition failed. " + transaction.message)
+            break
+          for product_id in product_ids.split(","):
+            product = data_helper.products_getone(int(product_id.strip()))
+            if product.success:
               data_helper.product_transaction_save(ProductTransaction(transaction_id=transaction.id, product_id=product.id))
+            else:
+              print("Addition failed. " + product.message)
+              transaction.success = False
+              break
+          if transaction.success:
+            print("Addition successful.")
         else:
           print("Invalid input.\n")
         print("")
       # If user wants to update
       elif entry == "update":
-        entry = input("Would you like to update a person, product, customer, or transaction?\n(Type exit to leave)\n").lower()
+        entry = input("Would you like to update a person, product, customer, or transaction?\n(Type exit to leave)\n").lower().strip()
         # Update products
         if entry == "product":
-          id = input("\nEnter the id of the product you would like to update\n")
+          id = input("\nEnter the id of the product you would like to update\n").strip()
           existing = data_helper.products_getone(id)
           if existing.success:
-            name = input("\nEnter a product name\n(Press enter to skip)\n")
-            price = input("\nEnter a product price\n(Press enter to skip)\n")
+            name = input("\nEnter a product name\n(Press enter to skip)\n").strip()
+            price = input("\nEnter a product price\n(Press enter to skip)\n").strip()
             if name != "":
               existing.name = name
             if price != "":
@@ -124,17 +149,17 @@ def main():
             print("Update failed. " + existing.message)
         # Update persons
         elif entry == "person":
-          id = input("Enter the id of the person you would like to update\n")
+          id = input("Enter the id of the person you would like to update\n").strip()
           existing = data_helper.persons_getone(id)
           if existing.success:
-            first_name = input("Enter the person's first name\n(Press enter to skip)\n")
-            last_name = input("Enter the person's last name\n(Press enter to skip)\n")
-            address = input("Enter the person's street address\n(Press enter to skip)\n")
-            city = input("Enter the person's city\n(Press enter to skip)\n")
-            state = input("Enter person's state\n(Press enter to skip)\n")
-            country = input("Enter the person's country\n(Press enter to skip)\n")
-            zip = input("Enter the person's zip code\n(Press enter to skip)\n")
-            email = input("Enter the person's email\n(Press enter to skip)\n")
+            first_name = input("Enter the person's first name\n(Press enter to skip)\n").strip()
+            last_name = input("Enter the person's last name\n(Press enter to skip)\n").strip()
+            address = input("Enter the person's street address\n(Press enter to skip)\n").strip()
+            city = input("Enter the person's city\n(Press enter to skip)\n").strip()
+            state = input("Enter person's state\n(Press enter to skip)\n").strip()
+            country = input("Enter the person's country\n(Press enter to skip)\n").strip()
+            zip = input("Enter the person's zip code\n(Press enter to skip)\n").strip()
+            email = input("Enter the person's email\n(Press enter to skip)\n").strip()
             if first_name != "":
               existing.first_name = first_name
             if last_name != "":
@@ -157,17 +182,17 @@ def main():
             print("Update failed. " + existing.message)
         # Update customers
         elif entry == "customer":
-          id = input("Enter the id of the customer you would like to update\n")
+          id = input("Enter the id of the customer you would like to update\n").strip()
           existing = data_helper.customers_getone(id)
           if existing.success:
-            type = input("Enter the customer's type\n(Press enter to skip)\n")
-            company = input("Enter the customer's company\n(Press enter to skip)\n")
-            person_id = input("Enter the customer's person ID\n(Press enter to skip)\n")
-            address = input("Enter the customer's address\n(Press enter to skip)\n")
-            city = input("Enter the customer's city\n(Press enter to skip)\n")
-            state = input("Enter customer's state\n(Press enter to skip)\n")
-            country = input("Enter the customer's country\n(Press enter to skip)\n")
-            zip = input("Enter the customer's zip code\n(Press enter to skip)\n")
+            type = input("Enter the customer's type\n(Press enter to skip)\n").strip()
+            company = input("Enter the customer's company\n(Press enter to skip)\n").strip()
+            person_id = input("Enter the customer's person ID\n(Press enter to skip)\n").strip()
+            address = input("Enter the customer's address\n(Press enter to skip)\n").strip()
+            city = input("Enter the customer's city\n(Press enter to skip)\n").strip()
+            state = input("Enter customer's state\n(Press enter to skip)\n").strip()
+            country = input("Enter the customer's country\n(Press enter to skip)\n").strip()
+            zip = input("Enter the customer's zip code\n(Press enter to skip)\n").strip()
             if type != "":
               existing.type = type
             if company != "":
@@ -190,23 +215,28 @@ def main():
             print("Update failed. " + existing.message)
         # Update transactions
         elif entry == "transaction":
-          id = input("Enter the id of the transaction you would like to update\n")
+          id = input("Enter the id of the transaction you would like to update\n").strip()
           existing = data_helper.transactions_getone(id)
           if existing.success:
-            customer_id = input("Enter the transaction's customer ID\n(Press enter to skip)\n")
-            date = input("Enter the transaction's date (yyyy-mm-dd)\n(Press enter to skip)\n")
-            products = input("Enter the transaction's product ID(s) as a comma separated list\n(Press enter to skip)\n")
+            customer_id = input("Enter the transaction's customer ID\n(Press enter to skip)\n").strip()
+            date = input("Enter the transaction's date (yyyy-mm-dd)\n(Press enter to skip)\n").strip()
+            products = input("Enter the transaction's product ID(s) as a comma separated list\n(Press enter to skip)\n").strip()
             if customer_id != "":
               existing.customer_id = customer_id
             if date != "":
               existing.date = date
             transaction = data_helper.transactions_save(existing)
+            if not transaction.success:
+              print("Update failed. " + transaction.message)
+              break
             if products != "":
               lst_products = products.split(",")
+              for existing_product in data_helper.get_products_by_transaction_id(transaction.id):
+                data_helper.product_transactions_delete(transaction.id, existing_product.id)
               for product_id in lst_products:
-                product = data_helper.products_getone(product_id)
+                product = data_helper.products_getone(int(product_id.strip()))
                 if product.success:
-                  data_helper.product_transaction_save(ProductTransaction(product_id=product.id, transaction_id=transaction.id))
+                  product_transaction = data_helper.product_transaction_save(ProductTransaction(product_id=product.id, transaction_id=transaction.id))
                 else:
                   print("Update failed. " + product.message)
                   break
@@ -218,30 +248,30 @@ def main():
         print("")
       # If user wants to delete
       elif entry == "delete":
-        entry = input("Would you like to delete a person, product, customer, or transaction?\n(Type exit to leave)\n").lower()
+        entry = input("Would you like to delete a person, product, customer, or transaction?\n(Type exit to leave)\n").lower().strip()
         if entry == "product":
-          id = input("Enter the id of the product you would like to delete\n")
+          id = input("Enter the id of the product you would like to delete\n").strip()
           product = data_helper.products_delete(id)
           if product.success:
             print("Deletion successful.")
           else:
             print("Deletion failed. " + product.message)
         elif entry == "customer":
-          id = input("Enter the id of the customer you would like to delete\n")
+          id = input("Enter the id of the customer you would like to delete\n").strip()
           customer = data_helper.customers_delete(id)
           if customer.success:
             print("Deletion successful.")
           else:
             print("Deletion failed. " + customer.message)
         elif entry == "person":
-          id = input("Enter the id of the person you would like to delete\n")
+          id = input("Enter the id of the person you would like to delete\n").strip()
           person = data_helper.persons_delete(id)
           if person.success:
             print("Deletion successful.")
           else:
             print("Deletion failed. " + person.message)
         elif entry == "transaction":
-          id = input("Enter the id of the transaction you would like to delete\n")
+          id = input("Enter the id of the transaction you would like to delete\n").strip()
           transaction = data_helper.transactions_delete(id)
           if transaction.success:
             print("Deletion successful.")

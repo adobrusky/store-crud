@@ -1,11 +1,10 @@
-from itertools import product
 from database.database import connect_to_database
 from database.data_models import Customer, Person, Product, Transaction, ProductTransaction
 from sqlalchemy.exc import ProgrammingError
 
 class DataHelper:
-  def __init__(self):
-    self.session = connect_to_database('localhost', '3306', 'store', 'root', '')
+  def __init__(self, username, password):
+    self.session = connect_to_database('localhost', '3306', 'store', username, password)
 
   def customers_getone(self, customer_id):
     customer = self.session.query(Customer).filter(Customer.id == customer_id).first()
@@ -69,10 +68,14 @@ class DataHelper:
     return product
 
   def product_transaction_save(self, product_transaction):
-    if self.product_transaction_getone(product_transaction.transaction_id, product_transaction.product_id) == None:
+    if not self.product_transaction_getone(product_transaction.transaction_id, product_transaction.product_id).success:
       self.session.add(product_transaction)
     self.session.commit()
-    product_transaction.success = True
+    product_transaction = self.product_transaction_getone(product_transaction.transaction_id, product_transaction.product_id)
+    if product_transaction.success:
+      product_transaction.success = True
+    else:
+      product_transaction.success = False
     return product_transaction
 
   def transactions_save(self, transaction):
@@ -148,6 +151,18 @@ class DataHelper:
       return Transaction(success=True)
     else:
       return Transaction(success=False, message="An unknown error occurred.")
+
+  def product_transactions_delete(self, transaction_id, product_id):
+    product_transaction = self.product_transaction_getone(transaction_id, product_id)
+    if product_transaction.success:
+      self.session.query(ProductTransaction).filter(ProductTransaction.transaction_id == transaction_id).filter(ProductTransaction.product_id == product_id).delete()
+      self.session.commit()
+    else:
+      return ProductTransaction(success=False, message=product_transaction.message)
+    if not self.transactions_getone(transaction_id).success:
+      return ProductTransaction(success=True)
+    else:
+      return ProductTransaction(success=False, message="An unknown error occurred.")
 
   def close(self):
     self.session.close()
