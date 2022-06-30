@@ -114,7 +114,7 @@ class DataHelper:
     if not self.products_getone(product_id).success:
       return Product(success=True)
     else:
-      return Product(success=False, message="An unknown error occurred.")
+      return Product(success=False, message="Deletion failed.")
 
   def customers_delete(self, customer_id):
     customer = self.customers_getone(customer_id)
@@ -126,7 +126,7 @@ class DataHelper:
     if not self.customers_getone(customer_id).success:
       return Customer(success=True)
     else:
-      return Customer(success=False, message="An unknown error occurred.")
+      return Customer(success=False, message="Deletion failed.")
 
   def persons_delete(self, person_id):
     person = self.persons_getone(person_id)
@@ -138,7 +138,7 @@ class DataHelper:
     if not self.persons_getone(person_id).success:
       return Person(success=True)
     else:
-      return Person(success=False, message="An unknown error occurred.")
+      return Person(success=False, message="Deletion failed.")
 
   def transactions_delete(self, transaction_id):
     transaction = self.transactions_getone(transaction_id)
@@ -150,7 +150,7 @@ class DataHelper:
     if not self.transactions_getone(transaction_id).success:
       return Transaction(success=True)
     else:
-      return Transaction(success=False, message="An unknown error occurred.")
+      return Transaction(success=False, message="Deletion failed.")
 
   def product_transactions_delete(self, transaction_id, product_id):
     product_transaction = self.product_transaction_getone(transaction_id, product_id)
@@ -162,7 +162,7 @@ class DataHelper:
     if not self.transactions_getone(transaction_id).success:
       return ProductTransaction(success=True)
     else:
-      return ProductTransaction(success=False, message="An unknown error occurred.")
+      return ProductTransaction(success=False, message="Deletion failed.")
 
   def close(self):
     self.session.close()
