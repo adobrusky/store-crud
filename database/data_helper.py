@@ -11,7 +11,7 @@ class DataHelper:
     if customer != None:
       customer.success = True
     else:
-      customer = Customer(success=False, message="A customer with customer ID " + customer_id + " does not exist.")
+      customer = Customer(success=False, message="A customer with customer ID " + str(customer_id) + " does not exist.")
     return customer
 
   def persons_getone(self, person_id):
@@ -19,7 +19,7 @@ class DataHelper:
     if person != None:
       person.success = True
     else:
-      person = Person(success=False, message="A person with person ID " + person_id + " does not exist.")
+      person = Person(success=False, message="A person with person ID " + str(person_id) + " does not exist.")
     return person
 
   def products_getone(self, product_id):
@@ -27,7 +27,7 @@ class DataHelper:
     if product != None:
       product.success = True 
     else:
-      product = Product(success=False, message="A product with product ID " + product_id + " does not exist.")
+      product = Product(success=False, message="A product with product ID " + str(product_id) + " does not exist.")
     return product
 
   def product_transaction_getone(self, transaction_id, product_id):
@@ -43,7 +43,7 @@ class DataHelper:
     if transaction != None:
       transaction.success = True
     else:
-      transaction = Transaction(success=False, message="A transaction with transaction ID " + transaction_id + " does not exist.")
+      transaction = Transaction(success=False, message="A transaction with transaction ID " + str(transaction_id) + " does not exist.")
     return transaction
 
   def customers_save(self, customer):

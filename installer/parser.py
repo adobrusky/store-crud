@@ -39,8 +39,10 @@ class Parser:
       state = full_address[2]
       zip = full_address[3] if full_address[3] is not None else ""
       country = full_address[4]
+      email = ""
       if len(split_line) == 4:
         email = split_line[3]
+      email = email.strip('\n')
       lst_persons.append(Person(id, first_name, last_name, address, city, state, zip, country, email))
     return lst_persons
 
@@ -59,7 +61,7 @@ class Parser:
       city = full_address[1]
       state = full_address[2]
       zip = full_address[3] if full_address[3] is not None else ""
-      country = full_address[4]
+      country = full_address[4].strip('\n')
       lst_customers.append(Customer(id, type, company, person, address, city, state, zip, country))
     return lst_customers
 
