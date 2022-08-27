@@ -2,34 +2,17 @@ from sqlalchemy import Column, Integer, String, Float, ForeignKey, Date, func, B
 from sqlalchemy.orm import relationship
 from database.database import Persisted
 
-class Person(Persisted):
-    __tablename__ = 'persons'
+class Customer(Persisted):
+    __tablename__ = 'customers'
     id = Column(Integer, primary_key=True)
     first_name = Column(String(256), nullable=False)
     last_name = Column(String(256), nullable=False)
     address = Column(String(256), nullable=False)
     city = Column(String(256), nullable=False)
     state = Column(String(256))
-    zip = Column(String(256), nullable=False)
+    postal_code = Column(String(256), nullable=False)
     country = Column(String(256), nullable=False)
     email = Column(String(256), nullable=False)
-    customer = relationship('Customer', back_populates='person', uselist=False)
-    success = Column(Boolean)
-    message = Column(String(256))
-
-
-class Customer(Persisted):
-    __tablename__ = 'customers'
-    id = Column(Integer, primary_key=True)
-    type = Column(String(1), nullable=False)
-    company = Column(String(256), nullable=False)
-    person_id = Column(Integer, ForeignKey('persons.id', ondelete='CASCADE'), nullable=False)
-    address = Column(String(256), nullable=False)
-    city = Column(String(256), nullable=False)
-    state = Column(String(256))
-    zip = Column(String(256), nullable=False)
-    country = Column(String(256), nullable=False)
-    person = relationship('Person', back_populates='customer')
     transaction = relationship('Transaction', back_populates='customer')
     success = Column(Boolean)
     message = Column(String(256))

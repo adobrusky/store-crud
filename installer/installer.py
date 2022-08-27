@@ -1,7 +1,7 @@
 import sys
 sys.path.append("..")
 from parser import Parser
-from database.data_models import Person, Customer, Product, ProductTransaction, Transaction
+from database.data_models import Customer, Product, ProductTransaction, Transaction
 from database.database import connect_to_database, Persisted
 
 def already_has_data(session):
@@ -9,7 +9,7 @@ def already_has_data(session):
 
 
 def add_parsed_data(session):
-    data_parser = Parser("../data/Persons.dat", "../data/Customers.dat", "../data/Products.dat", "../data/Transactions.dat")
+    data_parser = Parser("../data/Customers.dat", "../data/Products.dat", "../data/Transactions.dat")
 
     for product in data_parser.lst_products:
         product.data_model = Product(name=product.name, price=product.price)
@@ -17,15 +17,8 @@ def add_parsed_data(session):
 
     session.flush()
 
-    for person in data_parser.lst_persons:
-        person.data_model = Person(first_name=person.first_name, last_name=person.last_name, address=person.address, city=person.city, state=person.state, zip=person.zip, country=person.country, email=person.email)
-        session.add(person.data_model)
-
-    session.flush()
-
     for customer in data_parser.lst_customers:
-        person_id = data_parser.find_person(customer.person.id).data_model.id
-        customer.data_model = Customer(type=customer.type, company=customer.company, person_id=person_id, address=customer.address, city=customer.city, state=customer.state, zip=customer.zip, country=customer.country)
+        customer.data_model = Customer(first_name=customer.first_name, last_name=customer.last_name, address=customer.address, city=customer.city, state=customer.state, postal_code=customer.postal_code, country=customer.country, email=customer.email)
         session.add(customer.data_model)
     
     session.flush()

@@ -1,10 +1,34 @@
 from database.database import connect_to_database
-from database.data_models import Customer, Person, Product, Transaction, ProductTransaction
-from sqlalchemy.exc import ProgrammingError
+from database.data_models import Customer, Product, Transaction, ProductTransaction
 
 class DataHelper:
   def __init__(self, username, password):
     self.session = connect_to_database('localhost', '3306', 'store', username, password)
+  
+  def close(self):
+    self.session.close()
+
+  # Used for updates to patch the old object with the new object's information
+  def delta_patch(self, existing, new):
+    for attr, value in new.__dict__.items():
+      if attr != "id" and attr != "_sa_instance_state" and (type(existing).__name__ == "Transaction" and attr != "products"):
+        setattr(existing, attr, value)
+
+  # Check to make sure that the passed in required fields are not None in the object
+  def validate_required(self, object, required_fields):
+    missing = []
+    for required in required_fields:
+      if self.is_null_or_whitespace(getattr(object, required)):
+        missing.append(required)
+    return missing
+
+  def is_null_or_whitespace(self, string):
+    if string is None or len(str(string).strip()) == 0:
+      return True
+    else:
+      return False
+
+  #region Get one
 
   def customers_getone(self, customer_id):
     customer = self.session.query(Customer).filter(Customer.id == customer_id).first()
@@ -13,14 +37,6 @@ class DataHelper:
     else:
       customer = Customer(success=False, message="A customer with customer ID " + str(customer_id) + " does not exist.")
     return customer
-
-  def persons_getone(self, person_id):
-    person = self.session.query(Person).filter(Person.id == person_id).first()
-    if person != None:
-      person.success = True
-    else:
-      person = Person(success=False, message="A person with person ID " + str(person_id) + " does not exist.")
-    return person
 
   def products_getone(self, product_id):
     product = self.session.query(Product).filter(Product.id == product_id).first()
@@ -46,26 +62,65 @@ class DataHelper:
       transaction = Transaction(success=False, message="A transaction with transaction ID " + str(transaction_id) + " does not exist.")
     return transaction
 
-  def customers_save(self, customer):
-    if customer.id == None:
-      self.session.add(customer)
-    self.session.commit()
-    customer.success = True
-    return customer
+  #endregion
 
-  def persons_save(self, person):
-    if person.id == None:
-      self.session.add(person)
-    self.session.commit()
-    person.success = True
-    return person
+  #region Save (create/update) methods
+
+  def customers_save(self, customer):
+    try:
+      required_fields = ["first_name", "last_name", "address", "city", "country"]
+      invalid = []
+      missing = self.validate_required(customer, required_fields)
+      if len(missing) > 0:
+        raise ValueError("Missing required fields: " + ", ".join(missing) + ".")
+      # Postal code and state validation for USA and Canada
+      if customer.country.upper() == "USA" or customer.country.upper() == "CANADA":
+        if self.is_null_or_whitespace(customer.postal_code):
+          invalid.append("Postal code is required for USA and Canada.")
+        if self.is_null_or_whitespace(customer.state):
+          invalid.append("State is required for USA and Canada.")
+      else:
+        if self.is_null_or_whitespace(customer.postal_code):
+          customer.postal_code = ""
+        if self.is_null_or_whitespace(customer.state):
+          customer.state = ""
+      if self.is_null_or_whitespace(customer.email):
+        customer.email = ""
+      elif len(customer.email) > 0 and "@" not in customer.email:
+        invalid.append("Email is invalid.")
+      if len(invalid) > 0:
+        raise ValueError(" ".join(invalid))
+      if customer.id is None:
+        self.session.add(customer)
+      else:
+        existing = self.customers_getone(customer.id)
+        self.delta_patch(existing, customer)
+      self.session.commit()
+      customer.success = True
+      return customer
+    except Exception as ex:
+      customer.success = False
+      customer.message = str(ex)
+      return customer
 
   def products_save(self, product):
-    if product.id == None:
-      self.session.add(product)
-    self.session.commit()
-    product.success = True
-    return product
+    try:
+      required_fields = ["price", "name"]
+      missing = self.validate_required(product, required_fields)
+      if len(missing) > 0:
+        raise ValueError("Missing required fields: " + ", ".join(missing) + ".")
+      if product.id is None:
+        self.session.add(product)
+      else:
+        existing = self.products_getone(product.id)
+        self.delta_patch(existing, product)
+      self.session.commit()
+      product.success = True
+      return product
+    except Exception as ex:
+      product.success = False
+      product.message = str(ex)
+      return product
 
   def product_transaction_save(self, product_transaction):
     if not self.product_transaction_getone(product_transaction.transaction_id, product_transaction.product_id).success:
@@ -78,15 +133,39 @@ class DataHelper:
       product_transaction.success = False
     return product_transaction
 
-  def transactions_save(self, transaction):
-    if transaction.id == None:
-      self.session.add(transaction)
-    self.session.commit()
-    transaction.success = True
-    return transaction
+  def transactions_save(self, transaction, products):
+    try:
+      required_fields = ["customer_id", "date"]
+      invalid = []
+      missing = self.validate_required(transaction, required_fields)
+      if len(missing) > 0:
+        raise ValueError("Missing required fields: " + ", ".join(missing) + ".")
+      if not self.customers_getone(transaction.customer_id).success:
+        invalid.append("A customer with customer ID of " + str(transaction.customer_id) + " does not exist.")
+      if len(invalid) > 0:
+        raise ValueError(" ".join(invalid))
+      if transaction.id is None:
+        self.session.add(transaction)
+      else:
+        existing = self.transactions_getone(transaction.id)
+        self.delta_patch(existing, transaction)
+      self.session.commit()
+      transaction.success = True
+      # If the transaction save was successful then update all product transactions
+      for existing_product in self.get_products_by_transaction_id(transaction.id):
+        self.product_transactions_delete(transaction.id, existing_product.id)
+      if products is not None:
+        for product in products:
+          self.product_transaction_save(ProductTransaction(transaction_id=transaction.id, product_id=product))
+      return transaction
+    except ValueError as ex:
+      transaction.success = False
+      transaction.message = str(ex)
+      return transaction
 
-  def get_persons(self):
-    return self.session.query(Person)
+  #endregion
+
+  #region Get all methods
 
   def get_customers(self):
     return self.session.query(Customer)
@@ -103,6 +182,10 @@ class DataHelper:
     for product_transaction in product_transactions:
       lst_products.append(self.products_getone(product_transaction.product_id))
     return lst_products
+
+  #endregion
+
+  #region Delete methods
 
   def products_delete(self, product_id):
     product = self.products_getone(product_id)
@@ -128,18 +211,6 @@ class DataHelper:
     else:
       return Customer(success=False, message="Deletion failed.")
 
-  def persons_delete(self, person_id):
-    person = self.persons_getone(person_id)
-    if person.success:
-      self.session.query(Person).filter(Person.id == person_id).delete()
-      self.session.commit()
-    else:
-      return Person(success=False, message=person.message)
-    if not self.persons_getone(person_id).success:
-      return Person(success=True)
-    else:
-      return Person(success=False, message="Deletion failed.")
-
   def transactions_delete(self, transaction_id):
     transaction = self.transactions_getone(transaction_id)
     if transaction.success:
@@ -164,5 +235,4 @@ class DataHelper:
     else:
       return ProductTransaction(success=False, message="Deletion failed.")
 
-  def close(self):
-    self.session.close()
+  #endregion
