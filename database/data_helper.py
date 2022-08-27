@@ -11,8 +11,12 @@ class DataHelper:
   # Used for updates to patch the old object with the new object's information
   def delta_patch(self, existing, new):
     for attr, value in new.__dict__.items():
-      if attr != "id" and attr != "_sa_instance_state" and (type(existing).__name__ == "Transaction" and attr != "products"):
-        setattr(existing, attr, value)
+      print(attr)
+      if attr != "id" and attr != "_sa_instance_state":
+        if (type(existing).__name__ == "Transaction" and attr == "products"):
+          continue
+        else:
+          setattr(existing, attr, value)
 
   # Check to make sure that the passed in required fields are not None in the object
   def validate_required(self, object, required_fields):
