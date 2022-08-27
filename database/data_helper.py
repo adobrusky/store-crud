@@ -11,7 +11,6 @@ class DataHelper:
   # Used for updates to patch the old object with the new object's information
   def delta_patch(self, existing, new):
     for attr, value in new.__dict__.items():
-      print(attr)
       if attr != "id" and attr != "_sa_instance_state":
         if (type(existing).__name__ == "Transaction" and attr == "products"):
           continue
