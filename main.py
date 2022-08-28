@@ -8,7 +8,7 @@ def main():
   username = input()
   print('Please enter a password:')
   password = input()
-  data_helper = DataHelper(username, password)
+  data_helper = DataHelper('localhost', '3306', 'store', username, password)
   while not done:
     entry = input("Would you like to create, read, update, or delete?\n(Type exit to leave)\n").lower().strip()
     if entry != "create" and entry != "read" and entry != "update" and entry != "delete" and entry != "exit":

@@ -2,8 +2,8 @@ from database.database import connect_to_database
 from database.data_models import Customer, Product, Transaction, ProductTransaction
 
 class DataHelper:
-  def __init__(self, username, password):
-    self.session = connect_to_database('localhost', '3306', 'store', username, password)
+  def __init__(self, authority, port, database_name, username, password):
+    self.session = connect_to_database(authority, port, database_name, username, password)
   
   def close(self):
     self.session.close()
