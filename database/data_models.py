@@ -44,6 +44,7 @@ class ProductTransaction(Persisted):
     __tablename__ = 'product_transactions'
     product_id = Column(Integer, ForeignKey('products.id', ondelete='CASCADE'), primary_key=True)
     transaction_id = Column(Integer, ForeignKey('transactions.id', ondelete='CASCADE'), primary_key=True)
+    quantity = Column(Integer, nullable=False)
     product = relationship('Product', back_populates='product_transactions', overlaps='products,transactions')
     transaction = relationship('Transaction', back_populates='product_transactions', overlaps='products,transactions')
     success = Column(Boolean)

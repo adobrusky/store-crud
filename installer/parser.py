@@ -23,16 +23,16 @@ class Parser:
     lst_customers = []
     for line in customers:
       split_line = line.split(";")
-      id = split_line[0]
+      id = split_line[0].strip()
       full_name = split_line[1].split(",")
       first_name = full_name[1].strip()
       last_name = full_name[0].strip()
       full_address = split_line[2].split(",")
-      address = full_address[0]
-      city = full_address[1]
-      state = full_address[2]
-      postal_code = full_address[3] if full_address[3] is not None else ""
-      country = full_address[4].strip('\n')
+      address = full_address[0].strip()
+      city = full_address[1].strip()
+      state = full_address[2].strip()
+      postal_code = full_address[3].strip() if full_address[3] is not None else ""
+      country = full_address[4].strip()
       email = ""
       if len(split_line) == 4:
         email = split_line[3]
@@ -46,9 +46,9 @@ class Parser:
     lst_products = []
     for line in products:
       split_line = line.split(";")
-      id = split_line[0]
-      name = split_line[1]
-      price = split_line[2]
+      id = split_line[0].strip()
+      name = split_line[1].strip()
+      price = split_line[2].strip()
       lst_products.append(Product(id, name, price))
     return lst_products
 
@@ -58,11 +58,11 @@ class Parser:
     lst_transactions = []
     for line in transactions:
       split_line = line.split(";")
-      id = split_line[0]
-      customer = self.find_customer(split_line[1])
-      lst_products = []
+      id = split_line[0].strip()
+      customer = self.find_customer(split_line[1].strip())
+      lst_products = {}
       for product in split_line[2].split(","):
-        lst_products.append(product)
-      transaction_date = datetime.strptime(split_line[3][0:len(split_line[3]) - 1], '%Y-%m-%d')
+        lst_products[product.split(":")[0].strip()] = product.split(":")[1].strip()
+      transaction_date = datetime.strptime(split_line[3].strip(), '%Y-%m-%d')
       lst_transactions.append(Transaction(id, customer, lst_products, transaction_date))
     return lst_transactions 

@@ -44,14 +44,16 @@ def main():
           lst_transactions = data_helper.get_transactions()
           transactions_table = []
           for transaction in lst_transactions:
-            product_ids = ""
-            lst_products = data_helper.get_products_by_transaction_id(transaction.id)
-            for i in range(0, len(lst_products)):
-              product_ids += str(lst_products[i].id)
-              if i < len(lst_products) - 1:
-                product_ids += ", "
-            transactions_table.append([transaction.id, transaction.customer_id, product_ids, transaction.date])
-          columns = ["Transaction ID", "Customer ID", "Product ID(s)", "Date of Transaction"]
+            products = ""
+            lst_products = data_helper.get_product_transactions_by_transaction_id(transaction.id)
+            for i in range(0, lst_products.count()):
+              product = data_helper.products_getone(lst_products[i].product_id)
+              products += str(product.name) + ":" + str(lst_products[i].quantity)
+              if i < lst_products.count() - 1:
+                products += ", "
+            customer = data_helper.customers_getone(transaction.customer_id)
+            transactions_table.append([transaction.id, transaction.customer_id, customer.last_name + ", " + customer.first_name, products, transaction.date])
+          columns = ["Transaction ID", "Customer ID", "Customer Name", "Product Name:Quantity", "Date of Transaction"]
           print(tabulate(transactions_table, headers=columns))
         elif entry == "exit":
           done = True
@@ -91,10 +93,13 @@ def main():
         elif entry == "transaction":
           customer_id = input("Enter the transactions's customer ID\n").strip()
           date = input("Enter the transaction's date (yyyy-mm-dd)\n").strip()
-          product_ids = input("Enter the transaction's product ID(s) as a comma separated list\n").strip()
-          lst_products = []
-          if product_ids != "":
-            lst_products = products.split(",")
+          products = input("Enter the transaction's product ID(s) and quantities as a comma separated list (id:quantity)\n").strip()
+          lst_products = {}
+          if products != "":
+            lst_product_ids = products.split(",")
+            for product in lst_product_ids:
+              split_product = product.split(":")
+              lst_products[split_product[0]] = split_product[1]
           transaction = data_helper.transactions_save(Transaction(customer_id=customer_id, date=date), lst_products)
           if transaction.success:
             print("Addition successful.")
@@ -165,14 +170,17 @@ def main():
           if existing.success:
             customer_id = input("Enter the transaction's customer ID\n(Press enter to skip)\n").strip()
             date = input("Enter the transaction's date (yyyy-mm-dd)\n(Press enter to skip)\n").strip()
-            products = input("Enter the transaction's product ID(s) as a comma separated list\n(Press enter to skip)\n").strip()
+            products = input("Enter the transaction's product ID(s) and quantities as a comma separated list (id:quantity)\n(Press enter to skip)\n").strip()
             if customer_id != "":
               existing.customer_id = customer_id
             if date != "":
               existing.date = date
-            lst_products = []
+            lst_products = {}
             if products != "":
-              lst_products = products.split(",")
+              lst_product_ids = products.split(",")
+              for product in lst_product_ids:
+                split_product = product.split(":")
+                lst_products[split_product[0]] = split_product[1]
             transaction = data_helper.transactions_save(existing, lst_products)
             if not transaction.success:
               print("Update failed. " + transaction.message)
@@ -190,6 +198,7 @@ def main():
       # If user wants to delete
       elif entry == "delete":
         entry = input("Would you like to delete a customer, product, or transaction?\n(Type exit to leave)\n").lower().strip()
+        # Delete a product
         if entry == "product":
           id = input("Enter the id of the product you would like to delete\n").strip()
           product = data_helper.products_delete(id)
@@ -197,6 +206,7 @@ def main():
             print("Deletion successful.")
           else:
             print("Deletion failed. " + product.message)
+        # Delete a customer
         elif entry == "customer":
           id = input("Enter the id of the customer you would like to delete\n").strip()
           customer = data_helper.customers_delete(id)
@@ -204,6 +214,7 @@ def main():
             print("Deletion successful.")
           else:
             print("Deletion failed. " + customer.message)
+        # Delete a transaction
         elif entry == "transaction":
           id = input("Enter the id of the transaction you would like to delete\n").strip()
           transaction = data_helper.transactions_delete(id)

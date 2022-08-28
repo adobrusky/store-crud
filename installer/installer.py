@@ -32,9 +32,9 @@ def add_parsed_data(session):
     session.flush()
 
     for transaction in data_parser.lst_transactions:
-        for product in transaction.lst_products:
+        for product, quantity in transaction.lst_products.items():
             product_id = data_parser.find_product(product).data_model.id
-            session.add(ProductTransaction(product_id=product_id, transaction_id=transaction.data_model.id))
+            session.add(ProductTransaction(product_id=product_id, transaction_id=transaction.data_model.id, quantity=quantity))
 
 def main():
     # Prompts for getting database connection information

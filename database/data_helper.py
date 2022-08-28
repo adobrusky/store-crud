@@ -158,8 +158,8 @@ class DataHelper:
       for existing_product in self.get_products_by_transaction_id(transaction.id):
         self.product_transactions_delete(transaction.id, existing_product.id)
       if products is not None:
-        for product in products:
-          self.product_transaction_save(ProductTransaction(transaction_id=transaction.id, product_id=product))
+        for product_id, quantity in products.items():
+          self.product_transaction_save(ProductTransaction(transaction_id=transaction.id, product_id=product_id, quantity=quantity))
       return transaction
     except ValueError as ex:
       transaction.success = False
@@ -180,11 +180,13 @@ class DataHelper:
     return self.session.query(Transaction)
 
   def get_products_by_transaction_id(self, transaction_id):
-    product_transactions = self.session.query(ProductTransaction).filter(ProductTransaction.transaction_id == transaction_id)
     lst_products = []
-    for product_transaction in product_transactions:
+    for product_transaction in self.get_product_transactions_by_transaction_id(transaction_id):
       lst_products.append(self.products_getone(product_transaction.product_id))
     return lst_products
+
+  def get_product_transactions_by_transaction_id(self, transaction_id):
+    return self.session.query(ProductTransaction).filter(ProductTransaction.transaction_id == transaction_id)
 
   #endregion
 
