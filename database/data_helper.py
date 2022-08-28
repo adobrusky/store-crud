@@ -159,6 +159,10 @@ class DataHelper:
         self.product_transactions_delete(transaction.id, existing_product.id)
       if products is not None:
         for product_id, quantity in products.items():
+          if product_id is None:
+            raise ValueError("Each product in list of products requires a 'product_id'.")
+          if quantity is None:
+            raise ValueError("Each product in list of products requires a 'quantity'.")
           self.product_transaction_save(ProductTransaction(transaction_id=transaction.id, product_id=product_id, quantity=quantity))
       return transaction
     except ValueError as ex:
