@@ -11,7 +11,7 @@ This project will ultimately be used in the "Crash Course Coding" curriculum to 
     - Basic data validation and error handling for CRUD operations
     - Reading and parsing data files
 
-In this project the developer will use Python with SQLAlchemy to create a command line interface tool to perform create, read, update, and delete operations on a coffee shop's database. This includes a database installer which will parse the coffee shop's current customer, product, and transaction data files into objects and upload them to the database.
+In this project the developer will use Python with SQLAlchemy to create a command-line interface tool to perform create, read, update, and delete operations on a coffee shop's database. This includes a database installer which will parse the coffee shop's current customer, product, and transaction data files into objects and upload them to the database.
 
 ## Installation
 
@@ -35,7 +35,7 @@ pip install Flask SQLAlchemy mysql-connector
 cd .\installer\
 python .\installer.py
 ```
-10. Enter your username (default is "root") and password (default is ""). If the database installs successfuly you should see
+10. Enter your username (default is "root") and password (default is ""). If the database installs successfully you should see
 ```
 Please enter a username:
 root
