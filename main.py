@@ -3,21 +3,19 @@ from database.data_helper import DataHelper
 from tabulate import tabulate
 
 def main():
-  done = False
   print('Please enter a username:')
   username = input()
   print('Please enter a password:')
   password = input()
   data_helper = DataHelper('localhost', '3306', 'store', username, password)
-  while not done:
+  while True:
     entry = input("Would you like to create, read, update, or delete?\n(Type exit to leave)\n").lower().strip()
     if entry != "create" and entry != "read" and entry != "update" and entry != "delete" and entry != "exit":
       print("Invalid input.\n")
       continue
     elif entry == "exit":
-      done = True
       data_helper.close()
-      continue
+      break
     else:
       print("")
       # If user wants to read
@@ -56,9 +54,8 @@ def main():
           columns = ["Transaction ID", "Customer ID", "Customer Name", "Product Name:Quantity", "Date of Transaction"]
           print(tabulate(transactions_table, headers=columns))
         elif entry == "exit":
-          done = True
           data_helper.close()
-          continue
+          break
         else:
           print("Invalid input.\n")
         print("")
@@ -106,9 +103,8 @@ def main():
           else:
             print("Addition failed. " + transaction.message)
         elif entry == "exit":
-          done = True
           data_helper.close()
-          continue
+          break
         else:
           print("Invalid input.\n")
         print("")
@@ -189,9 +185,8 @@ def main():
           else:
             print("Update failed. " + existing.message)
         elif entry == "exit":
-          done = True
           data_helper.close()
-          continue
+          break
         else:
           print("Invalid input.\n")
         print("")
@@ -223,9 +218,8 @@ def main():
           else:
             print("Deletion failed. " + transaction.message)
         elif entry == "exit":
-          done = True
           data_helper.close()
-          continue
+          break
         else:
           print("Invalid input.\n")
         print("")
