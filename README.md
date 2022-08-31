@@ -25,17 +25,16 @@ git clone https://github.com/adobrusky/store-crud.git
 ```
 pip install Flask SQLAlchemy mysql-connector
 ```
-5. Make sure the SQL server is turned on in XAMPP. Take note of the port (it should be 3306 by default).
-6. Open the shell of the SQL server and connect to it with `mysql -u root`
-7. Create a new database: `CREATE DATABASE store`
-8. Depending on how you set up the database's connection information, you may have to modify line 45 in `installer\installer.py` and line 11 in `main.py`. 
+5. Depending on how you set up the database's connection information, you may have to modify line 45 in `installer\installer.py` and line 11 in `main.py`. 
     - By default: authority="localhost", port=3306, database_name="store", username="root", password=""
-9. To run the database installer (this will parse the files in the `data` directory and upload them to the database):
+6. Make sure the SQL server is turned on in XAMPP. Open the shell of the SQL server and connect to it with `mysql -u root` (or your username)
+7. Create a new database: `CREATE DATABASE store`
+8. To run the database installer (this will parse the files in the `data` directory and upload them to the database):
 ```
 cd .\installer\
 python .\installer.py
 ```
-10. Enter your username (default is "root") and password (default is ""). If the database installs successfully you should see
+9. Enter your username (default is "root") and password (default is ""). If the database installs successfully you should see
 ```
 Please enter a username:
 root
@@ -44,11 +43,11 @@ Please enter a password:
 Tables successfully created.
 Records successfully parsed and uploaded to database.
 ```
-11. To run the command-line interface tool for CRUD capabilities:
+10. To run the command-line interface tool for CRUD capabilities:
 ```
 python .\main.py
 ```
-12. If the tool starts successfully you should see something like this:
+11. If the tool starts successfully you should see something like this:
 ```
 Please enter a username:
 root
